@@ -1,4 +1,4 @@
-module riscv_regfile (
+module general_purpose_reg_block (
     input  logic         clk,       // Clock signal
     input  logic         rst,       // Reset signal
     input  logic         we,        // Write enable
@@ -26,5 +26,4 @@ module riscv_regfile (
             regs[wr_addr] <= wr_data; // Writing only if address is not x0
         end
     end
-
 endmodule
