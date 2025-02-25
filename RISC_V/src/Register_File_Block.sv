@@ -1,4 +1,4 @@
-module general_purpose_reg_block (
+module Register_File_Block (
     input  logic         clk,       // Clock signal
     input  logic         rst,       // Reset signal
     input  logic         we,        // Write enable
