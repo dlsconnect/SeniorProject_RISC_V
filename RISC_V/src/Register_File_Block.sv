@@ -1,29 +1,35 @@
 module Register_File_Block (
-    input  logic         clk,       // Clock signal
-    input  logic         rst,       // Reset signal
-    input  logic         we,        // Write enable
-    input  logic [4:0]   rd_addr1,  // Read register address 1
-    input  logic [4:0]   rd_addr2,  // Read register address 2
-    input  logic [4:0]   wr_addr,   // Write register address
-    input  logic [31:0]  wr_data,   // Write data
-    output logic [31:0]  rd_data1,  // Read data 1
-    output logic [31:0]  rd_data2   // Read data 2
+  // Inputs from Decode Stage
+  input  logic [4:0]  reg_read_addr1_d,   // rs1
+  input  logic [4:0]  reg_read_addr2_d,   // rs2
+  input  logic [1:0]  reg_read_en_d,      // {rs2_en, rs1_en}
+  input  logic [4:0]  reg_write_addr_d,   // rd
+  input  logic        reg_write_en_d,     // write enable
+  input  logic [31:0] writeData,          // data to write from WB stage
+
+  // Read outputs
+  output logic [31:0] rd1,
+  output logic [31:0] rd2
 );
 
-    logic [31:0] regs [31:0]; // Register array (32 registers, each 32-bit wide)
+  // Internal register file
+  logic [31:0] regFile [0:31];
 
-    // Read operation (combinational)
-    assign rd_data1 = (rd_addr1 == 5'd0) ? 32'd0 : regs[rd_addr1];
-    assign rd_data2 = (rd_addr2 == 5'd0) ? 32'd0 : regs[rd_addr2];
+  // Combinational reads with read enables
+  assign rd1 = (reg_read_en_d[0] && reg_read_addr1_d != 5'd0)
+               ? regFile[reg_read_addr1_d] : 32'd0;
 
-    // Write operation (synchronous)
-    always_ff @(posedge clk or posedge rst) begin
-        if (rst) begin
-            for (int i = 0; i < 32; i++) begin
-                regs[i] <= 32'd0;
-            end
-        end else if (we && (wr_addr != 5'd0)) begin
-            regs[wr_addr] <= wr_data; // Writing only if address is not x0
-        end
+  assign rd2 = (reg_read_en_d[1] && reg_read_addr2_d != 5'd0)
+               ? regFile[reg_read_addr2_d] : 32'd0;
+
+  // Controlled write (no clk/reset used)
+  always_comb begin
+    if (reg_write_en_d && reg_write_addr_d != 5'd0) begin
+      regFile[reg_write_addr_d] = writeData;
     end
+
+    // Always enforce x0 as zero
+    regFile[0] = 32'd0;
+  end
+
 endmodule
