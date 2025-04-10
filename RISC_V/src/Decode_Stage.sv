@@ -6,16 +6,14 @@ module Decode_Stage(
     //input logic        test_write_en,     // Write enable
     //input logic [31:0] test_write_data,   // Data to write to register file
 
-    input logic [4:0] reg_write_addr_w,
-    input logic reg_write_en_w,
+    // Signals from Write Back Stage
+    input logic [4:0]  reg_write_addr_w,
+    input logic        reg_write_en_w,
     input logic [31:0] reg_writedata_w,
 
 
     // Outputs to the next stage
-    output logic immgen_en_d,
-    output logic [4:0] reg_read_addr1_d,
-    output logic [4:0] reg_read_addr2_d,
-    output logic [1:0] reg_read_en_d,
+    // Fowared signals to the next stage
     output logic reg_write_en_d,
     output logic [4:0] reg_write_addr_d,
     output logic pcadder_in1_sel_d,
@@ -30,16 +28,16 @@ module Decode_Stage(
     output logic dmem_read_en_d,
     output logic dmem_write_en_d,
     output logic reg_writedata_sel_d,
-    output logic [31:0] rd1,              // Read data 1 from Register File
-    output logic [31:0] rd2,              // Read data 2 from Register File
-    output logic [31:0] imm_out           // Immediate value from Immediate Generator
+    output logic [31:0] reg_readdata1_d,              // Read data 1 from Register File
+    output logic [31:0] reg_readdata2_d,              // Read data 2 from Register File
+    output logic [31:0] imm_data_d           // Immediate value from Immediate Generator
 );
 
     // Internal wires from Control Unit
-    wire immgen_en_d_wire;
-    wire [4:0] reg_read_addr1_d_wire;
-    wire [4:0] reg_read_addr2_d_wire;
-    wire [1:0] reg_read_en_d_wire;
+    wire immgen_en_d;
+    wire [4:0] reg_read_addr1_d;
+    wire [4:0] reg_read_addr2_d;
+    wire [1:0] reg_read_en_d;
     wire reg_write_en_d_wire;
     wire [4:0] reg_write_addr_d_wire;
     wire pcadder_in1_sel_d_wire;
@@ -58,10 +56,10 @@ module Decode_Stage(
     // Instantiate Control Unit Block
     Control_Unit_Block control_unit_inst (
         .instr(instr),
-        .immgen_en_d(immgen_en_d_wire),
-        .reg_read_addr1_d(reg_read_addr1_d_wire),
-        .reg_read_addr2_d(reg_read_addr2_d_wire),
-        .reg_read_en_d(reg_read_en_d_wire),
+        .immgen_en_d(immgen_en_d),
+        .reg_read_addr1_d(reg_read_addr1_d),
+        .reg_read_addr2_d(reg_read_addr2_d),
+        .reg_read_en_d(reg_read_en_d),
         .reg_write_en_d(reg_write_en_d_wire),
         .reg_write_addr_d(reg_write_addr_d_wire),
         .pcadder_in1_sel_d(pcadder_in1_sel_d_wire),
@@ -80,28 +78,24 @@ module Decode_Stage(
 
     // Register File Block — using testbench write inputs directly
     Register_File_Block register_file_inst (
-        .reg_read_addr1_d(reg_read_addr1_d_wire),
-        .reg_read_addr2_d(reg_read_addr2_d_wire),
-        .reg_read_en_d(reg_read_en_d_wire),
+        .reg_read_addr1_d(reg_read_addr1_d),
+        .reg_read_addr2_d(reg_read_addr2_d),
+        .reg_read_en_d(reg_read_en_d),
         .reg_write_addr_d(reg_write_addr_w),
         .reg_write_en_d(reg_write_en_w),
         .writeData(reg_writedata_w),
-        .rd1(rd1),
-        .rd2(rd2)
+        .reg_readdata1_e(reg_readdata1_d),
+        .reg_readdata2_e(reg_readdata2_d)
     );
 
     // Immediate Generator Block
     Immediate_Generator_Block imm_gen_inst (
         .instruction(instr),
-        .immgen_en_d(immgen_en_d_wire),
-        .imm_out(imm_out)
+        .immgen_en_d(immgen_en_d),
+        .imm_data_d(imm_data_d)
     );
 
     // Forward control unit signals to output ports
-    assign immgen_en_d             = immgen_en_d_wire;
-    assign reg_read_addr1_d        = reg_read_addr1_d_wire;
-    assign reg_read_addr2_d        = reg_read_addr2_d_wire;
-    assign reg_read_en_d           = reg_read_en_d_wire;
     assign reg_write_en_d          = reg_write_en_d_wire;
     assign reg_write_addr_d        = reg_write_addr_d_wire;
     assign pcadder_in1_sel_d       = pcadder_in1_sel_d_wire;
