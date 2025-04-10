@@ -50,7 +50,7 @@ module ALU(reg_readdata1_e,alumul_data2,alu_op_e,alu_en_e,alu_out,pc_branch_en_s
         5'b11011: pc_branch_en_sel = (reg_readdata1_e < alumul_data2) ? 1'b1: 1'b0; //BLTU 27
         5'b11100: pc_branch_en_sel = (reg_readdata1_e >= alumul_data2 ) ? 1'b1 : 1'b0; //BGEU 28
         5'b11101: pc_branch_en_sel = 1'b1; //AUIPC 29
-        5'b11110: pc_brnach_en_sel = 1'b1; //JAL 30
+        5'b11110: pc_branch_en_sel = 1'b1; //JAL 30
         5'b11111: pc_branch_en_sel = 1'b1; //JALR 31
         default : begin
             alu_out = 32'h0000_0000;
