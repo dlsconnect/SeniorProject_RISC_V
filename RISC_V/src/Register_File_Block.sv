@@ -8,18 +8,18 @@ module Register_File_Block (
   input  logic [31:0] writeData,          // data to write from WB stage
 
   // Read outputs
-  output logic [31:0] rd1,
-  output logic [31:0] rd2
+  output logic [31:0] reg_readdata1_d,
+  output logic [31:0] reg_readdata2_d
 );
 
   // Internal register file
   logic [31:0] regFile [0:31];
 
   // Combinational reads with read enables
-  assign rd1 = (reg_read_en_d[0] && reg_read_addr1_d != 5'd0)
+  assign reg_readdata1_d = (reg_read_en_d[0] && reg_read_addr1_d != 5'd0)
                ? regFile[reg_read_addr1_d] : 32'd0;
 
-  assign rd2 = (reg_read_en_d[1] && reg_read_addr2_d != 5'd0)
+  assign reg_readdata2_d = (reg_read_en_d[1] && reg_read_addr2_d != 5'd0)
                ? regFile[reg_read_addr2_d] : 32'd0;
 
   // Controlled write (no clk/reset used)

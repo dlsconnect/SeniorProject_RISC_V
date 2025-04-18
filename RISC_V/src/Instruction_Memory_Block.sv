@@ -1,31 +1,20 @@
-module Instruction_Memory_Block (
-	input logic          clk,              // Clock signal
-	input logic          rst,              // Reset signal
-	input logic  [31:0]  PC_f,             // Current instruction address
-	input logic  [31:0]  Instruction_f,    // Instruction coming from instruction memory
-	input logic          PC_branch_en_sel, // Control signal for branching; selects between PC_branch and PC_plus4
-	input logic  [31:0]  PC_branch,        // Address to branch (if branching)
-	input logic          imem_read_en,     // Enables a read from instruction memory
-	output logic [31:0]  PC_next           // Next PC address: either branch target or PC + 4
+module Instruction_Memory_Block #(
+    parameter int IMEM_DEPTH = 256,          // words
+    parameter     INIT_FILE  = "imem.hex"    // $readmemh file
+)(
+    input  logic [31:0] PC_f, // Program Counter
+    input  logic        imem_read_en, // Instruction Memory Read Enable
+    output logic [31:0] Instruction_f // Instruction Output
 );
-	logic [31:0]  PC_plus4;         
-	assign PC_plus4 = PC_f + 4;
-    	
-	//PC update logic
-	always_ff @(posedge clk) begin
-        //if reset flag is up, then we just set the next cycle to be at 00000000
-        if (rst) begin
-            PC_next <= 32'b0;
-        end else begin
-            //if the control sig wants us to branch, then we set the next cycle's pc to be where we are branching to
-            if (PC_branch_en_sel) begin
-                PC_next <= PC_branch;
-            //if we are not branching, then our default option is to go to the next 4 bits
-            end else begin
-                PC_next <= PC_plus4;
-            end
-        end
-    end
 
-	
+    localparam int ADDR_WIDTH = $clog2(IMEM_DEPTH);
+    wire [ADDR_WIDTH-1:0] word_idx = PC_f[ADDR_WIDTH+1 : 2];
+
+    logic [31:0] rom [0 : IMEM_DEPTH-1];
+
+    initial if (INIT_FILE != "") $readmemh(INIT_FILE, rom);
+
+    always_comb
+        Instruction_f = imem_read_en ? rom[word_idx] : 32'h0000_0013;
+
 endmodule

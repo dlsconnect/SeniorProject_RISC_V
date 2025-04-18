@@ -1,10 +1,6 @@
 module Decode_Stage(
     input logic [31:0] instr,             // Instruction from the fetch stage
-
-    // Testbench-only write interface 
-    //input logic [4:0]  test_write_addr,   // Write address (e.g., x1, x2)
-    //input logic        test_write_en,     // Write enable
-    //input logic [31:0] test_write_data,   // Data to write to register file
+    input logic [31:0] pc_d_in,               // Program Counter from the fetch stage
 
     // Signals from Write Back Stage
     input logic [4:0]  reg_write_addr_w,
@@ -28,37 +24,40 @@ module Decode_Stage(
     output logic dmem_read_en_d,
     output logic dmem_write_en_d,
     output logic reg_writedata_sel_d,
-    output logic [31:0] reg_readdata1_d,              // Read data 1 from Register File
-    output logic [31:0] reg_readdata2_d,              // Read data 2 from Register File
-    output logic [31:0] imm_data_d           // Immediate value from Immediate Generator
+    output logic [4:0] reg_read_addr1_d,
+    output logic [4:0] reg_read_addr2_d,
+    output logic [31:0] reg_readdata1_d,
+    output logic [31:0] reg_readdata2_d,
+    output logic [31:0] imm_data_d,
+    output logic [31:0] pc_d_out
 );
 
     // Internal wires from Control Unit
-    wire immgen_en_d;
-    wire [4:0] reg_read_addr1_d;
-    wire [4:0] reg_read_addr2_d;
-    wire [1:0] reg_read_en_d;
-    wire reg_write_en_d_wire;
-    wire [4:0] reg_write_addr_d_wire;
-    wire pcadder_in1_sel_d_wire;
-    wire pcadder_in2_sel_d_wire;
-    wire pcadder_out_sel_d_wire;
-    wire pcadder_out_merge_sel_d_wire;
-    wire alu_en_d_wire;
-    wire [4:0] alu_op_d_wire;
-    wire alu_mul_data2_sel_d_wire;
-    wire mul_en_d_wire;
-    wire [1:0] execute_out_sel_d_wire;
-    wire dmem_read_en_d_wire;
-    wire dmem_write_en_d_wire;
-    wire reg_writedata_sel_d_wire;
+    logic immgen_en_d;
+    logic [4:0] reg_read_addr1_d_wire;
+    logic [4:0] reg_read_addr2_d_wire;
+    logic [1:0] reg_read_en_d;
+    logic reg_write_en_d_wire;
+    logic [4:0] reg_write_addr_d_wire;
+    logic pcadder_in1_sel_d_wire;
+    logic pcadder_in2_sel_d_wire;
+    logic pcadder_out_sel_d_wire;
+    logic pcadder_out_merge_sel_d_wire;
+    logic alu_en_d_wire;
+    logic [4:0] alu_op_d_wire;
+    logic alu_mul_data2_sel_d_wire;
+    logic mul_en_d_wire;
+    logic [1:0] execute_out_sel_d_wire;
+    logic dmem_read_en_d_wire;
+    logic dmem_write_en_d_wire;
+    logic reg_writedata_sel_d_wire;
 
     // Instantiate Control Unit Block
     Control_Unit_Block control_unit_inst (
         .instr(instr),
         .immgen_en_d(immgen_en_d),
-        .reg_read_addr1_d(reg_read_addr1_d),
-        .reg_read_addr2_d(reg_read_addr2_d),
+        .reg_read_addr1_d(reg_read_addr1_d_wire),
+        .reg_read_addr2_d(reg_read_addr2_d_wire),
         .reg_read_en_d(reg_read_en_d),
         .reg_write_en_d(reg_write_en_d_wire),
         .reg_write_addr_d(reg_write_addr_d_wire),
@@ -78,37 +77,42 @@ module Decode_Stage(
 
     // Register File Block — using testbench write inputs directly
     Register_File_Block register_file_inst (
-        .reg_read_addr1_d(reg_read_addr1_d),
-        .reg_read_addr2_d(reg_read_addr2_d),
+        .reg_read_addr1_d(reg_read_addr1_d_wire),
+        .reg_read_addr2_d(reg_read_addr2_d_wire),
         .reg_read_en_d(reg_read_en_d),
         .reg_write_addr_d(reg_write_addr_w),
         .reg_write_en_d(reg_write_en_w),
         .writeData(reg_writedata_w),
-        .reg_readdata1_e(reg_readdata1_d),
-        .reg_readdata2_e(reg_readdata2_d)
+        .reg_readdata1_d(reg_readdata1_d),
+        .reg_readdata2_d(reg_readdata2_d)
     );
 
     // Immediate Generator Block
     Immediate_Generator_Block imm_gen_inst (
         .instruction(instr),
         .immgen_en_d(immgen_en_d),
-        .imm_data_d(imm_data_d)
+        .imm_out(imm_data_d)
     );
 
     // Forward control unit signals to output ports
-    assign reg_write_en_d          = reg_write_en_d_wire;
-    assign reg_write_addr_d        = reg_write_addr_d_wire;
-    assign pcadder_in1_sel_d       = pcadder_in1_sel_d_wire;
-    assign pcadder_in2_sel_d       = pcadder_in2_sel_d_wire;
-    assign pcadder_out_sel_d       = pcadder_out_sel_d_wire;
-    assign pcadder_out_merge_sel_d = pcadder_out_merge_sel_d_wire;
-    assign alu_en_d                = alu_en_d_wire;
-    assign alu_op_d                = alu_op_d_wire;
-    assign alu_mul_data2_sel_d     = alu_mul_data2_sel_d_wire;
-    assign mul_en_d                = mul_en_d_wire;
-    assign execute_out_sel_d       = execute_out_sel_d_wire;
-    assign dmem_read_en_d          = dmem_read_en_d_wire;
-    assign dmem_write_en_d         = dmem_write_en_d_wire;
-    assign reg_writedata_sel_d     = reg_writedata_sel_d_wire;
+    always_comb begin
+        reg_write_en_d          = reg_write_en_d_wire;
+        reg_write_addr_d        = reg_write_addr_d_wire;
+        pcadder_in1_sel_d       = pcadder_in1_sel_d_wire;
+        pcadder_in2_sel_d       = pcadder_in2_sel_d_wire;
+        pcadder_out_sel_d       = pcadder_out_sel_d_wire;
+        pcadder_out_merge_sel_d = pcadder_out_merge_sel_d_wire;
+        alu_en_d                = alu_en_d_wire;
+        alu_op_d                = alu_op_d_wire;
+        alu_mul_data2_sel_d     = alu_mul_data2_sel_d_wire;
+        mul_en_d                = mul_en_d_wire;
+        execute_out_sel_d       = execute_out_sel_d_wire;
+        dmem_read_en_d          = dmem_read_en_d_wire;
+        dmem_write_en_d         = dmem_write_en_d_wire;
+        reg_writedata_sel_d     = reg_writedata_sel_d_wire;
+        reg_read_addr1_d        = reg_read_addr1_d_wire;
+        reg_read_addr2_d        = reg_read_addr2_d_wire;
+        pc_d_out                = pc_d_in;
+    end
 
 endmodule

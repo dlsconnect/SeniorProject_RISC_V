@@ -1,4 +1,4 @@
-module ALU(reg_readdata1_e,alumul_data2,alu_op_e,alu_en_e,alu_out,pc_branch_en_sel);
+module ALU_Block(reg_readdata1_e,alumul_data2,alu_op_e,alu_en_e,alu_out,pc_branch_en_sel);
 
     //io
     input [31:0] reg_readdata1_e,alumul_data2;

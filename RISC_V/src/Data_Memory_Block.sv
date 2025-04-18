@@ -1,5 +1,4 @@
-module Data_Memory (
-    input clk,               // Clock signal for synchronous writes
+module Data_Memory_Block (
     input mem_write,         // Control signal: 1 = Write, 0 = Read
     input mem_read,          // Control signal: 1 = Read, 0 = No Read
     input [31:0] address,    // Memory address (byte addressable)
@@ -10,18 +9,18 @@ module Data_Memory (
     // Define 256 words (32-bit each) = 1024 bytes of memory
     reg [31:0] Memory [255:0]; 
 
-    // Read operation (combinational logic)
+    // Read and write operations (combinational logic)
     always @(*) begin
+        // Default read_data to zero
+        read_data = 32'h00000000;
+
+        // Handle read operation
         if (mem_read)
             read_data = Memory[address[7:2]]; // Word-aligned access
-        else
-            read_data = 32'h00000000;
-    end
 
-    // Write operation (synchronous on clk)
-    always @(posedge clk) begin
+        // Handle write operation
         if (mem_write)
-            Memory[address[7:2]] <= write_data; // Word-aligned write
+            Memory[address[7:2]] = write_data; // Word-aligned write
     end
 
 endmodule
