@@ -63,24 +63,24 @@ always @(*) begin
             alu_en_d = 1;
 
             if (funct3 == 3'b000) begin
-                if (funct7 == 7'b0000000) alu_op_d = 5'b00001; // ADD
-                else if (funct7 == 7'b0100000) alu_op_d = 5'b00010; // SUB
+                if (funct7 == 7'b0000000) alu_op_d = 1; // ADD
+                else if (funct7 == 7'b0100000) alu_op_d = 2; // SUB
                 else if (funct7 == 7'b0000001) begin // MUL
                     alu_en_d = 0;
                     mul_en_d = 1;
                 end 
             end
-            else if (funct3 == 3'b111 && funct7 == 7'b0000000) alu_op_d = 5'b00011; // AND
-            else if (funct3 == 3'b110 && funct7 == 7'b0000000) alu_op_d = 5'b00100; // OR
-            else if (funct3 == 3'b100 && funct7 == 7'b0000000) alu_op_d = 5'b00101; // XOR
-            else if (funct3 == 3'b010 && funct7 == 7'b0000000) alu_op_d = 5'b00110; // SLT
-            else if (funct3 == 3'b011 && funct7 == 7'b0000000) alu_op_d = 5'b00111; // SLTU
+            else if (funct3 == 3'b111 && funct7 == 7'b0000000) alu_op_d = 3; // AND
+            else if (funct3 == 3'b110 && funct7 == 7'b0000000) alu_op_d = 4; // OR
+            else if (funct3 == 3'b100 && funct7 == 7'b0000000) alu_op_d = 5; // XOR
+            else if (funct3 == 3'b010 && funct7 == 7'b0000000) alu_op_d = 6; // SLT
+            else if (funct3 == 3'b011 && funct7 == 7'b0000000) alu_op_d = 7; // SLTU
             else if (funct3 == 3'b101) begin
-                if (funct7 == 7'b0000000) alu_op_d = 5'b01001; // SRL
-                else if (funct7 == 7'b0100000) alu_op_d = 5'b01000; // SRA
+                if (funct7 == 7'b0000000) alu_op_d = 9; // SRL (change to 8)
+                else if (funct7 == 7'b0100000) alu_op_d = 8; // SRA
             end
-            else if (funct3 == 3'b001 && funct7 == 7'b0000000) alu_op_d = 5'b01010; // SLL
-            else alu_op_d = 5'b00000;
+            else if (funct3 == 3'b001 && funct7 == 7'b0000000) alu_op_d = 10; // SLL
+            else alu_op_d = 0; // default NOP
 
             alu_mul_data2_sel_d = 0;
             execute_out_sel_d = 2'b01;
@@ -106,18 +106,37 @@ always @(*) begin
             pcadder_out_merge_sel_d = 0;
             alu_en_d = 1;
 
-            if (funct3 == 3'b000) alu_op_d = 5'b01011; // ADDI
-            else if (funct3 == 3'b111) alu_op_d = 5'b01100; // ANDI
-            else if (funct3 == 3'b110) alu_op_d = 5'b01101; // ORI
-            else if (funct3 == 3'b100) alu_op_d = 5'b01110; // XORI
-            else if (funct3 == 3'b010) alu_op_d = 5'b01111; // SLTI
-            else if (funct3 == 3'b011) alu_op_d = 5'b10000; // SLTIU
-            else if (funct3 == 3'b101) begin
-                if (funct7 == 7'b0000000) alu_op_d = 5'b10010; // SRLI
-                else if (funct7 == 7'b0100000) alu_op_d = 5'b10001; // SRAI
+        if (funct3 == 3'b000) begin
+            alu_op_d = 5'd11; // ADDI
+        end
+        else if (funct3 == 3'b111) begin
+            alu_op_d = 5'd12; // ANDI
+        end
+        else if (funct3 == 3'b110) begin
+            alu_op_d = 5'd13; // ORI
+        end
+        else if (funct3 == 3'b100) begin
+            alu_op_d = 5'd14; // XORI
+        end
+        else if (funct3 == 3'b010) begin
+            alu_op_d = 5'd15; // SLTI
+        end
+        else if (funct3 == 3'b011) begin
+            alu_op_d = 5'd16; // SLTIU
+        end
+        else if (funct3 == 3'b101) begin
+            if (funct7 == 7'b0000000) begin
+                alu_op_d = 5'd18; // SRLI
             end
-            else if (funct3 == 3'b001 && funct7 == 7'b0000000) alu_op_d = 5'b10011; // SLLI
-            else alu_op_d = 5'b00000;
+            else if (funct7 == 7'b0100000) begin
+                alu_op_d = 5'd17; // SRAI
+            end
+        end
+        else if (funct3 == 3'b001) begin
+            if (funct7 == 7'b0000000) begin
+                alu_op_d = 5'd19; // SLLI
+            end
+        end
 
             alu_mul_data2_sel_d = 1;
             mul_en_d = 0;
@@ -194,13 +213,13 @@ always @(*) begin
             pcadder_out_merge_sel_d = 0;
             alu_en_d = 1;
 
-            if (funct3 == 3'b000) alu_op_d = 5'b10111; // BEQ
-            else if (funct3 == 3'b001) alu_op_d = 5'b11000; // BNE
-            else if (funct3 == 3'b100) alu_op_d = 5'b11001; // BLT (signed)
-            else if (funct3 == 3'b101) alu_op_d = 5'b11010; // BGE (signed)
-            else if (funct3 == 3'b110) alu_op_d = 5'b11011; // BLTU (unsigned)
-            else if (funct3 == 3'b111) alu_op_d = 5'b11100; // BGEU (unsigned)
-            else alu_op_d = 5'b00000;
+            if (funct3 == 3'b000) alu_op_d = 5'd23; // BEQ
+            else if (funct3 == 3'b001) alu_op_d = 5'd24; // BNE
+            else if (funct3 == 3'b100) alu_op_d = 5'd25; // BLT (signed)
+            else if (funct3 == 3'b101) alu_op_d = 5'd26; // BGE (signed)
+            else if (funct3 == 3'b110) alu_op_d = 5'd27; // BLTU (unsigned)
+            else if (funct3 == 3'b111) alu_op_d = 5'd28; // BGEU (unsigned)
+            else alu_op_d = 5'd0; // default NOP
 
             alu_mul_data2_sel_d = 0;
             mul_en_d = 0;

@@ -1,6 +1,7 @@
 module FE_DE (
     input logic clk,
     input logic reset,
+    input logic pipe_flush,
     
     // Signals from Fetch Stage
     input logic [31:0] instr_f,
@@ -12,7 +13,7 @@ module FE_DE (
 );
     
     always_ff @(posedge clk) begin
-        if (reset) begin
+        if (reset || pipe_flush) begin
             instr_d <= 32'b0;
             pc_d <= 32'b0;
         end else begin

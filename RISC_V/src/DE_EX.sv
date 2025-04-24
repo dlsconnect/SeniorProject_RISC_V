@@ -1,6 +1,7 @@
 module DE_EX (
     input logic clk,
     input logic reset,
+    input logic pipe_flush,
 
     // Signals from Decode Stage
     input logic [31:0] pc_d,
@@ -48,7 +49,7 @@ module DE_EX (
 );
 
     always_ff @(posedge clk) begin
-        if (reset) begin
+        if (reset || pipe_flush) begin
             pc_e <= 32'b0;
             reg_write_en_e <= 1'b0;
             reg_write_addr_e <= 5'b0;

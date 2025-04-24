@@ -1,14 +1,16 @@
 module RISC_V_01(
     input logic clk,
     input logic reset,
-    input logic imem_read_en
+    input logic imem_read_en,
+    output logic reg_writeback_en
 );
 
+logic [31:0] pc_branch_wire;
+logic        pc_branch_en_sel_wire;
+logic [31:0] pc_f_wire;
+logic [31:0] instr_f_wire;
+logic pipe_flush;
 
-wire [31:0] pc_branch_wire;
-wire        pc_branch_en_sel_wire;
-wire [31:0] pc_f_wire;
-wire [31:0] instr_f_wire;
 
 // Fetch Stage
 Fetch_Stage fetch_stage (
@@ -21,13 +23,14 @@ Fetch_Stage fetch_stage (
     .instr_f(instr_f_wire)
 );
 
-wire [31:0] pc_d_1_wire;
-wire [31:0] instr_d_wire;
+logic [31:0] pc_d_1_wire;
+logic [31:0] instr_d_wire;
 
 // FE/DE Pipline
 FE_DE fe_de (
     .clk(clk),
     .reset(reset),
+    .pipe_flush(pc_branch_en_sel_wire),
     .pc_f(pc_f_wire),
     .instr_f(instr_f_wire),
     .pc_d(pc_d_1_wire),
@@ -35,31 +38,31 @@ FE_DE fe_de (
 );
 
 
-wire [4:0]  reg_write_addr_w_wire;
-wire [31:0] reg_writedata_w_wire;
-wire        reg_write_en_w_wire;
+logic [4:0]  reg_write_addr_w_wire;
+logic [31:0] reg_writedata_w_wire;
+logic        reg_write_en_w_wire;
 
 
-wire [4:0]  reg_write_addr_d_wire;
-wire        reg_write_en_d_wire;
-wire        pcadder_in1_sel_d_wire;
-wire        pcadder_in2_sel_d_wire;
-wire        pcadder_out_sel_d_wire;
-wire        pcadder_out_merge_sel_d_wire;
-wire        alu_en_d_wire;
-wire [4:0]  alu_op_d_wire;
-wire        alu_mul_data2_sel_d_wire;
-wire        mul_en_d_wire;
-wire [1:0]  execute_out_sel_d_wire;
-wire        dmem_read_en_d_wire;
-wire        dmem_write_en_d_wire;
-wire        reg_writedata_sel_d_wire;
-wire [4:0]  reg_read_addr1_d_wire;
-wire [4:0]  reg_read_addr2_d_wire;
-wire [31:0] reg_readdata1_d_wire;
-wire [31:0] reg_readdata2_d_wire;
-wire [31:0] imm_data_d_wire;
-wire [31:0] pc_d_2_wire; 
+logic [4:0]  reg_write_addr_d_wire;
+logic        reg_write_en_d_wire;
+logic        pcadder_in1_sel_d_wire;
+logic        pcadder_in2_sel_d_wire;
+logic        pcadder_out_sel_d_wire;
+logic        pcadder_out_merge_sel_d_wire;
+logic        alu_en_d_wire;
+logic [4:0]  alu_op_d_wire;
+logic        alu_mul_data2_sel_d_wire;
+logic        mul_en_d_wire;
+logic [1:0]  execute_out_sel_d_wire;
+logic        dmem_read_en_d_wire;
+logic        dmem_write_en_d_wire;
+logic        reg_writedata_sel_d_wire;
+logic [4:0]  reg_read_addr1_d_wire;
+logic [4:0]  reg_read_addr2_d_wire;
+logic [31:0] reg_readdata1_d_wire;
+logic [31:0] reg_readdata2_d_wire;
+logic [31:0] imm_data_d_wire;
+logic [31:0] pc_d_2_wire; 
 
 
 // Decode Stage
@@ -92,31 +95,32 @@ Decode_Stage decode_stage(
 );
 
 
-wire [31:0] pc_e_wire;
-wire [4:0]  reg_write_addr_e_wire_1;
-wire        reg_write_en_e_wire_1;
-wire        pcadder_in1_sel_e_wire;
-wire        pcadder_in2_sel_e_wire;
-wire        pcadder_out_sel_e_wire;
-wire        pcadder_out_merge_sel_e_wire;
-wire        alu_en_e_wire;
-wire [4:0]  alu_op_e_wire;
-wire        alu_mul_data2_sel_e_wire;
-wire        mul_en_e_wire;
-wire [1:0]  execute_out_sel_e_wire;
-wire        dmem_read_en_e_wire_1;
-wire        dmem_write_en_e_wire_1;
-wire        reg_writedata_sel_e_wire_1;
-wire [4:0]  reg_read_addr1_e_wire;
-wire [4:0]  reg_read_addr2_e_wire;
-wire [31:0] reg_readdata1_e_wire;
-wire [31:0] reg_readdata2_e_wire;
-wire [31:0] imm_data_e_wire;
+logic [31:0] pc_e_wire;
+logic [4:0]  reg_write_addr_e_wire_1;
+logic        reg_write_en_e_wire_1;
+logic        pcadder_in1_sel_e_wire;
+logic        pcadder_in2_sel_e_wire;
+logic        pcadder_out_sel_e_wire;
+logic        pcadder_out_merge_sel_e_wire;
+logic        alu_en_e_wire;
+logic [4:0]  alu_op_e_wire;
+logic        alu_mul_data2_sel_e_wire;
+logic        mul_en_e_wire;
+logic [1:0]  execute_out_sel_e_wire;
+logic        dmem_read_en_e_wire_1;
+logic        dmem_write_en_e_wire_1;
+logic        reg_writedata_sel_e_wire_1;
+logic [4:0]  reg_read_addr1_e_wire;
+logic [4:0]  reg_read_addr2_e_wire;
+logic [31:0] reg_readdata1_e_wire;
+logic [31:0] reg_readdata2_e_wire;
+logic [31:0] imm_data_e_wire;
 
 // DE/EX Pipeline
 DE_EX de_ex (
     .clk(clk),
     .reset(reset),
+    .pipe_flush(pc_branch_en_sel_wire),
     .pc_d(pc_d_2_wire),
     .reg_write_en_d(reg_write_en_d_wire),
     .reg_write_addr_d(reg_write_addr_d_wire),
@@ -161,13 +165,13 @@ DE_EX de_ex (
 );
 
 
-wire [31:0] execute_out_e_wire;
-wire [4:0]  reg_write_addr_e_wire_2;
-wire        reg_write_en_e_wire_2;
-wire        dmem_read_en_e_wire_2;
-wire        dmem_write_en_e_wire_2;
-wire        reg_writedata_sel_e_wire_2;
-wire [31:0] reg_readdata2_e_wire_2;
+logic [31:0] execute_out_e_wire;
+logic [4:0]  reg_write_addr_e_wire_2;
+logic        reg_write_en_e_wire_2;
+logic        dmem_read_en_e_wire_2;
+logic        dmem_write_en_e_wire_2;
+logic        reg_writedata_sel_e_wire_2;
+logic [31:0] reg_readdata2_e_wire_2;
 
 // Execute Stage
 Execute_Stage execute_stage(
@@ -202,13 +206,13 @@ Execute_Stage execute_stage(
     .reg_readdata2_e_out(reg_readdata2_e_wire_2)
 );
 
-wire [31:0] execute_out_m_wire_1;
-wire [4:0]  reg_write_addr_m_wire_1;
-wire        reg_write_en_m_wire_1;
-wire        dmem_read_en_m_wire;
-wire        dmem_write_en_m_wire;
-wire        reg_writedata_sel_m_wire_1;
-wire [31:0] reg_readdata2_m_wire;
+logic [31:0] execute_out_m_wire_1;
+logic [4:0]  reg_write_addr_m_wire_1;
+logic        reg_write_en_m_wire_1;
+logic        dmem_read_en_m_wire;
+logic        dmem_write_en_m_wire;
+logic        reg_writedata_sel_m_wire_1;
+logic [31:0] reg_readdata2_m_wire;
 
 // EX/MEM Pipeline
 EX_MEM ex_mem (
@@ -232,11 +236,11 @@ EX_MEM ex_mem (
     .reg_readdata2_m(reg_readdata2_m_wire)
 );
 
-wire [31:0] execute_out_m_wire_2;
-wire [4:0]  reg_write_addr_m_wire_2;
-wire        reg_write_en_m_wire_2;
-wire [31:0] dmem_readdata_m_wire;
-wire        reg_writedata_sel_m_wire_2;
+logic [31:0] execute_out_m_wire_2;
+logic [4:0]  reg_write_addr_m_wire_2;
+logic        reg_write_en_m_wire_2;
+logic [31:0] dmem_readdata_m_wire;
+logic        reg_writedata_sel_m_wire_2;
 
 
 // Memory Stage
@@ -258,11 +262,11 @@ Memory_Stage memory_stage(
     .reg_writedata_sel_m_out(reg_writedata_sel_m_wire_2)
 );
 
-wire [31:0] dmem_readdata_w_wire;
-wire [31:0] execute_out_w_wire;
-wire [4:0]  reg_write_addr_w_wire_1;
-wire        reg_write_en_w_wire_1;
-wire        reg_writedata_sel_w_wire;
+logic [31:0] dmem_readdata_w_wire;
+logic [31:0] execute_out_w_wire;
+logic [4:0]  reg_write_addr_w_wire_1;
+logic        reg_write_en_w_wire_1;
+logic        reg_writedata_sel_w_wire;
 
 // MEM/WB Pipeline
 MEM_WB mem_wb (
@@ -297,6 +301,9 @@ Writeback_Stage writeback_stage(
     .reg_writedata_w(reg_writedata_w_wire)
 );
 
-
+// Assing outputs
+always_comb begin 
+    reg_writeback_en = reg_write_en_w_wire;
+end
 
 endmodule

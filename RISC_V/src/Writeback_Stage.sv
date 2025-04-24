@@ -13,7 +13,7 @@ module Writeback_Stage(
 );
 
 always_comb begin
-    reg_writedata_w = (reg_writedata_sel_w) ? dmem_readdata_w_in : execute_out_w_in;
+    reg_writedata_w = (reg_writedata_sel_w) ? execute_out_w_in : dmem_readdata_w_in;
     reg_write_addr_w_out = reg_write_addr_w_in;
     reg_write_en_w_out = reg_write_en_w_in;
 end

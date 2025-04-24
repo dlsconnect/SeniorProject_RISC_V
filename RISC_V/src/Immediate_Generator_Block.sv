@@ -7,7 +7,6 @@ module Immediate_Generator_Block (
   logic [31:0] imm;
 
   always_comb begin
-    // Default output
     imm = 32'd0;
 
     if (immgen_en_d) begin
@@ -23,20 +22,18 @@ module Immediate_Generator_Block (
         end
 
         7'b1100011: begin
-          // B-type
-          imm = { {19{instruction[31]}}, instruction[31], instruction[7],
-                  instruction[30:25], instruction[11:8], 1'b0 };
+          // B-type 
+          imm = { {20{instruction[31]}}, instruction[7], instruction[30:25], instruction[11:8], 1'b0 };
         end
 
         7'b0010111, 7'b0110111: begin
-          // U-type (LUI, AUIPC)
+          // U-type
           imm = { instruction[31:12], 12'd0 };
         end
 
         7'b1101111: begin
           // J-type
-          imm = { {11{instruction[31]}}, instruction[31], instruction[19:12],
-                  instruction[20], instruction[30:21], 1'b0 };
+          imm = { {12{instruction[31]}}, instruction[19:12], instruction[20], instruction[30:21], 1'b0 };
         end
 
         default: begin
