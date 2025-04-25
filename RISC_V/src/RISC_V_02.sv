@@ -22,13 +22,15 @@ Fetch_Stage_bp int_Fetch (
     .pc_branch(pc_branch),
     .pc_branch_en_sel(pc_branch_en_sel),
     .pc_d(pc_d_1),
+    .imem_read_en(imem_read_en), // Added missing connection
     // Outputs
     .flush_fd(flush_fd),
-    .flueh_de(flush_de),
+    .flush_de(flush_de), // Fixed typo from flueh_de to flush_de
     .pc_f(pc_f),
     .instr_f(instr_f)
 );
 
+logic [31:0] instr_d;
 // FE_DE Pipeline
 FE_DE int_Fe_DE (
     // Inputs
@@ -39,7 +41,7 @@ FE_DE int_Fe_DE (
     .instr_f(instr_f),
     .pc_f(pc_f),
     // Decode OUT
-    .instr_d(pc_d_1),
+    .instr_d(instr_d),
     .pc_d(pc_d_1)
 );
 
@@ -188,6 +190,7 @@ logic dmem_read_en_e_2;
 logic dmem_write_en_e_2;
 logic reg_writedata_sel_e_2;
 logic [31:0] reg_readdata2_e_2;
+logic [31:0] execute_out_m_1;
 
 // Execute Stage
 Execute_Stage int_Execute (
@@ -207,6 +210,7 @@ Execute_Stage int_Execute (
     .alumul_forward_sel_e(alumul_forward_sel_e),
     .execute_out_sel_e(execute_out_sel_e),
     .pcadder_out_merge_sel_e(pcadder_out_merge_sel_e),
+    .execute_out_m(execute_out_m_1),
     
     // Input External signals
     .reg_write_addr_e(reg_write_addr_e_1),
@@ -230,7 +234,6 @@ Execute_Stage int_Execute (
 );
 
 // Memory Stage Wires
-logic [31:0] execute_out_m_1;
 logic [4:0] reg_write_addr_m_1;
 logic reg_write_en_m_1;
 logic dmem_read_en_m;
@@ -281,8 +284,8 @@ logic [4:0] reg_write_addr_m_2;
 logic reg_write_en_m_2;
 logic reg_writedata_sel_m_2;
 
-// Memeory Stage
-Memeory_Stage int_Memory(
+// Memory Stage
+Memory_Stage int_Memory(
     // Input
     .reg_readdata2_m(reg_readdata2_m),
     .execute_out_m_in(execute_out_m_1),
