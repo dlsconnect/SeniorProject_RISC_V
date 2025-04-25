@@ -1,5 +1,5 @@
 module Decode_Stage(
-    input logic [31:0] instr,             // Instruction from the fetch stage
+    input logic [31:0] instr_d,             // Instruction from the fetch stage
     input logic [31:0] pc_d_in,               // Program Counter from the fetch stage
 
     // Signals from Write Back Stage
@@ -54,7 +54,7 @@ module Decode_Stage(
 
     // Instantiate Control Unit Block
     Control_Unit_Block control_unit_inst (
-        .instr(instr),
+        .instr(instr_d),
         .immgen_en_d(immgen_en_d),
         .reg_read_addr1_d(reg_read_addr1_d_wire),
         .reg_read_addr2_d(reg_read_addr2_d_wire),
@@ -89,7 +89,7 @@ module Decode_Stage(
 
     // Immediate Generator Block
     Immediate_Generator_Block imm_gen_inst (
-        .instruction(instr),
+        .instruction(instr_d),
         .immgen_en_d(immgen_en_d),
         .imm_out(imm_data_d)
     );

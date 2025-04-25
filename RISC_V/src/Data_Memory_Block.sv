@@ -7,20 +7,34 @@ module Data_Memory_Block (
 );
 
     // Define 256 words (32-bit each) = 1024 bytes of memory
-    reg [31:0] Memory [255:0]; 
+    reg [31:0] data_memory [255:0]; 
+
+    // Initialize memory to zero at the start of simulation
+    initial begin
+        integer i;
+        for (i = 0; i < 256; i = i + 1) begin
+            data_memory[i] = 32'h00000000;
+        end
+    end
 
     // Read and write operations (combinational logic)
     always @(*) begin
         // Default read_data to zero
         read_data = 32'h00000000;
 
-        // Handle read operation
-        if (mem_read)
-            read_data = Memory[address[7:2]]; // Word-aligned access
+        // Handle read operation only if mem_read is asserted
+        if (mem_read) begin
+            if (address[7:2] < 256) begin
+                read_data = data_memory[address[7:2]]; // Word-aligned access
+            end else begin
+                read_data = 32'hDEADBEEF; // Return a known invalid value for out-of-bounds access
+            end
+        end
 
-        // Handle write operation
-        if (mem_write)
-            Memory[address[7:2]] = write_data; // Word-aligned write
+        // Handle write operation only if mem_write is asserted
+        if (mem_write && address[7:2] < 256) begin
+            data_memory[address[7:2]] = write_data; // Word-aligned write
+        end
     end
 
 endmodule
