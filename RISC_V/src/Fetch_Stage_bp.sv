@@ -1,15 +1,16 @@
 module Fetch_Stage_bp(
-//inputs
-input clk,
-input rst,
-input [31:0] pc_branch,
-input pc_branch_en_sel,
-input pc_d,
-//outputs
-output logic flush_fd,
-output logic flush_de,
-output logic pc_f,
-output logic instr_f
+    //inputs
+    input clk,
+    input rst,
+    input [31:0] pc_branch,
+    input pc_branch_en_sel,
+    input [31:0] pc_d, // Updated to 32-bit
+    input logic imem_read_en, // Added missing port
+    //outputs
+    output logic flush_fd,
+    output logic flush_de,
+    output logic [31:0] pc_f, // Updated to 32-bit
+    output logic [31:0] instr_f // Updated to 32-bit
 );
 
 //internal wires
@@ -32,14 +33,19 @@ Branch_Predictor_Block int_bp(
 //instantiate the imem
 Instruction_Memory_Block #(
     .IMEM_DEPTH(256),          // Depth of instruction memory
-    .INIT_FILE("/home/dlsconnect/Documents/SFSU_2020_2025/SeniorProject_RISC_V/RISC_V/src/Instructions_Folder/simple_SW_LW_instr.hex")     // Initialization file for instruction memory
+    .INIT_FILE("/home/dlsconnect/Documents/SFSU_2020_2025/SeniorProject_RISC_V/RISC_V/src/Instructions_Folder/simple_add.hex")     // Initialization file for instruction memory
 ) int_imem(
     .PC_f(pc_f),
+    .imem_read_en(imem_read_en), // Added missing connection
     .Instruction_f(instr_f)
 );
 
 //internal wires
 always @(posedge clk) begin
-    pc_f <= pc_out;
+    if (rst) begin
+        pc_f <= 32'h0000_0000; // Reset PC to 0
+    end else begin
+        pc_f <= pc_out;
+    end
 end
 endmodule

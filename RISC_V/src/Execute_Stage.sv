@@ -5,7 +5,7 @@ module Execute_Stage(
     input [31:0] reg_readdata1_e, 
     input [31:0] reg_readdata2_e, 
     input pcadder_out_sel_e, 
-    input alu_op_e,
+    input [4:0] alu_op_e,
     input alu_en_e,
     input mul_en_e, 
     input pcadder_in1_sel_e,
@@ -13,12 +13,12 @@ module Execute_Stage(
     input alumul_data1_sel_e,
     input alumul_data2_sel_e,
     input alumul_forward_sel_e,
-    input execute_out_sel_e,
+    input [1:0] execute_out_sel_e,
     input pcadder_out_merge_sel_e,
-    input execute_out_m,
+    input [31:0] execute_out_m,
 
     // Input External signals
-    input [31:0] reg_write_addr_e,
+    input [4:0] reg_write_addr_e,
     input reg_write_en_e,
     input dmem_read_en_e,
     input dmem_write_en_e,
@@ -30,7 +30,7 @@ module Execute_Stage(
     output logic pc_branch_en_sel,
 
     // Output External signals
-    output logic [31:0] reg_write_addr_m,
+    output logic [4:0] reg_write_addr_m,
     output logic reg_write_en_m,
     output logic dmem_read_en_m,
     output logic dmem_write_en_m,

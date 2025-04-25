@@ -1,10 +1,16 @@
 module Branch_Predictor_Block(
     //inputs
-    input clk, pc_branch_en_sel, rst,
-    input [31:0] pc_f, pc_d, instr_f, pc_branch,
+    input logic clk, 
+    input logic pc_branch_en_sel, 
+    input logic rst,
+    input logic [31:0] pc_f, 
+    input logic [31:0] pc_d, 
+    input logic [31:0] instr_f, 
+    input logic [31:0] pc_branch,
 
     //outputs
-    output logic flush_fd, flush_de,
+    output logic flush_fd, 
+    output logic flush_de,
     output logic [31:0] pc_out
 );
 
@@ -17,6 +23,7 @@ module Branch_Predictor_Block(
     state <= (rst) ? 2'b00 : nextstate;
     pc_old1 <= (rst) ? 32'h0000_0000 : pc_f;
     pc_old2 <= (rst) ? 32'h0000_0000 : pc_old1;
+
     end
 
     //nextstate comb logic
