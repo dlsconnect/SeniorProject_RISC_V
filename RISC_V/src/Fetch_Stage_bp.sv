@@ -42,10 +42,6 @@ Instruction_Memory_Block #(
 
 //internal wires
 always @(posedge clk) begin
-    if (rst) begin
-        pc_f <= 32'h0000_0000; // Reset PC to 0
-    end else begin
-        pc_f <= pc_out;
-    end
+    pc_f <= (rst) ? 32'h0000_0000 : pc_out; // Reset PC to 0 on reset signal
 end
 endmodule

@@ -22,10 +22,10 @@ Fetch_Stage_bp int_Fetch (
     .pc_branch(pc_branch),
     .pc_branch_en_sel(pc_branch_en_sel),
     .pc_d(pc_d_1),
-    .imem_read_en(imem_read_en), // Added missing connection
+    .imem_read_en(imem_read_en),
     // Outputs
     .flush_fd(flush_fd),
-    .flush_de(flush_de), // Fixed typo from flueh_de to flush_de
+    .flush_de(flush_de),
     .pc_f(pc_f),
     .instr_f(instr_f)
 );
