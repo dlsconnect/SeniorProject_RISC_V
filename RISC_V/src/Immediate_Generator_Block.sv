@@ -23,7 +23,7 @@ module Immediate_Generator_Block (
 
         7'b1100011: begin
           // B-type 
-          imm = { {20{instruction[31]}}, instruction[7], instruction[30:25], instruction[11:8], 1'b0 };
+          imm = { {19{instruction[31]}}, instruction[31], instruction[7], instruction[30:25], instruction[11:8], 1'b0};
         end
 
         7'b0010111, 7'b0110111: begin

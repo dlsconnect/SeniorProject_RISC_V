@@ -3,7 +3,7 @@ module Fetch_Stage_bp(
     input clk,
     input rst,
     input [31:0] pc_branch,
-    input pc_branch_en_sel,
+    input [1:0] pc_branch_en_sel,
     input [31:0] pc_d, // Updated to 32-bit
     input logic imem_read_en, // Added missing port
     //outputs
@@ -33,7 +33,7 @@ Branch_Predictor_Block int_bp(
 //instantiate the imem
 Instruction_Memory_Block #(
     .IMEM_DEPTH(256),          // Depth of instruction memory
-    .INIT_FILE("/home/dlsconnect/Documents/SFSU_2020_2025/SeniorProject_RISC_V/RISC_V/src/Instructions_Folder/simple_add.hex")     // Initialization file for instruction memory
+    .INIT_FILE("/home/dlsconnect/Documents/SFSU_2020_2025/SeniorProject_RISC_V/RISC_V/src/Instructions_Folder/imem.hex")     // Initialization file for instruction memory
 ) int_imem(
     .PC_f(pc_f),
     .imem_read_en(imem_read_en), // Added missing connection

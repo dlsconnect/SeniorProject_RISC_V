@@ -8,7 +8,7 @@ module RISC_V_02 (
 logic [31:0] instr_f;
 logic [31:0] pc_f;
 logic [31:0] pc_branch;
-logic pc_branch_en_sel;
+logic [1:0] pc_branch_en_sel;
 logic flush_fd;
 logic flush_de;
 logic [31:0] pc_d_1;
@@ -181,8 +181,8 @@ DE_EX int_De_Ex (
 );
 
 // More wires for Execute Stage
-logic alumul_data1_sel_e;
-logic alumul_forward_sel_e;
+logic [1:0] alumul_data1_sel_e;
+logic [1:0] alumul_forward_sel_e;
 logic [31:0] execute_out_e;
 logic [4:0] reg_write_addr_e_2;
 logic reg_write_en_e_2;
@@ -191,6 +191,7 @@ logic dmem_write_en_e_2;
 logic reg_writedata_sel_e_2;
 logic [31:0] reg_readdata2_e_2;
 logic [31:0] execute_out_m_1;
+logic [31:0] execute_out_w;
 
 // Execute Stage
 Execute_Stage int_Execute (
@@ -211,6 +212,7 @@ Execute_Stage int_Execute (
     .execute_out_sel_e(execute_out_sel_e),
     .pcadder_out_merge_sel_e(pcadder_out_merge_sel_e),
     .execute_out_m(execute_out_m_1),
+    .execute_out_w(execute_out_w),
     
     // Input External signals
     .reg_write_addr_e(reg_write_addr_e_1),
@@ -272,6 +274,7 @@ Forwarding_Unit_Block int_Forward(
     .reg_writeaddress_m(reg_write_addr_m_1),
     .reg_readaddress1_e(reg_read_addr1_e),
     .reg_readaddress2_e(reg_read_addr2_e),
+    .reg_writeaddress(reg_write_addr_w),
 
     // Outputs
     .alumul_data1_sel_e(alumul_data1_sel_e),
@@ -304,7 +307,6 @@ Memory_Stage int_Memory(
 
 // Writeback Stage Wires
 logic [31:0] dmem_readdata_w;
-logic [31:0] execute_out_w;
 logic [4:0] reg_write_addr_w_2;
 logic reg_write_en_w_2;
 logic reg_writedata_sel_w;

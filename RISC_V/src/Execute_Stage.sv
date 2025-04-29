@@ -10,12 +10,13 @@ module Execute_Stage(
     input mul_en_e, 
     input pcadder_in1_sel_e,
     input pcadder_in2_sel_e,
-    input alumul_data1_sel_e,
+    input [1:0] alumul_data1_sel_e,
     input alumul_data2_sel_e,
-    input alumul_forward_sel_e,
+    input [1:0] alumul_forward_sel_e,
     input [1:0] execute_out_sel_e,
     input pcadder_out_merge_sel_e,
     input [31:0] execute_out_m,
+    input [31:0] execute_out_w,
 
     // Input External signals
     input [4:0] reg_write_addr_e,
@@ -27,7 +28,7 @@ module Execute_Stage(
     // Outputs
     output logic [31:0] execute_out_e,
     output logic [31:0] pc_branch,
-    output logic pc_branch_en_sel,
+    output logic [1:0] pc_branch_en_sel,
 
     // Output External signals
     output logic [4:0] reg_write_addr_m,
@@ -65,7 +66,6 @@ ALU_Block int_alu(
 
 always_comb begin
     // Passing signals
-    reg_readdata2_m = reg_readdata2_e;
     reg_write_addr_m = reg_write_addr_e; 
     reg_write_en_m = reg_write_en_e; 
     dmem_read_en_m = dmem_read_en_e; 
@@ -73,16 +73,18 @@ always_comb begin
     reg_writedata_sel_m = reg_writedata_sel_e;
 
     // ALU/MUL
-    alumul_data1 = (alumul_data1_sel_e) ? execute_out_m : reg_readdata1_e;
-    alumul_forward = (alumul_forward_sel_e) ? execute_out_m : reg_readdata2_e;
+    alumul_data1 = (alumul_data1_sel_e[1]) ? (alumul_data1_sel_e[0] ? 32'b0 : execute_out_w) : (alumul_data1_sel_e[0] ? execute_out_m : reg_readdata1_e);
+    alumul_forward = (alumul_forward_sel_e[1]) ?  (alumul_forward_sel_e[0] ? 32'b0 : execute_out_w) : (alumul_forward_sel_e[0] ? execute_out_m : reg_readdata2_e);
     alumul_data2 = (alumul_data2_sel_e) ? immediate_e : alumul_forward;
     mul_out = (mul_en_e) ? $signed(alumul_data2) * $signed(alumul_data2) : 32'h0000_0000;
+
+    reg_readdata2_m = alumul_forward; // Pass through reg_readdata2 for memory stage
 
     // PC Adder
     immediate_e_shifted = immediate_e << 12;
     pcadder_in1 = (pcadder_in1_sel_e) ? reg_readdata1_e : pc_e;
     pcadder_in2 = (pcadder_in2_sel_e) ? immediate_e_shifted : immediate_e;
-    pcadder_out = (pc_branch_en_sel) ? pcadder_in1 + pcadder_in2 : 32'h0000_0000;
+    pcadder_out = $signed(pcadder_in1) + $signed(pcadder_in2);
     pcadder_out_rounded = pcadder_out;
     pcadder_out_rounded[0] = 1'b0;
     pcadder_out_merge = (pcadder_out_sel_e) ? pcadder_out_rounded : pcadder_out;

@@ -9,13 +9,7 @@ module Data_Memory_Block (
     // Define 256 words (32-bit each) = 1024 bytes of memory
     reg [31:0] data_memory [255:0]; 
 
-    // Initialize memory to zero at the start of simulation
-    initial begin
-        integer i;
-        for (i = 0; i < 256; i = i + 1) begin
-            data_memory[i] = 32'h00000000;
-        end
-    end
+
 
     // Read and write operations (combinational logic)
     always @(*) begin
