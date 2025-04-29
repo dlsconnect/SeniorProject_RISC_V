@@ -1,7 +1,10 @@
 module RISC_V_02 (
     input logic clk,
     input logic reset,
-    input logic imem_read_en
+    input logic imem_read_en,
+
+    output [31:0] reg_writedata,
+    output logic [4:0] reg_writeaddr
 );
     
 // Instruction Memory Wires
@@ -346,4 +349,8 @@ Writeback_Stage int_Writeback (
     .reg_write_addr_w_out(reg_write_addr_w),
     .reg_write_en_w_out(reg_write_en_w)
 );
+
+assign reg_writeaddr = reg_write_addr_w;
+assign reg_writedata = reg_writedata_w;
+
 endmodule

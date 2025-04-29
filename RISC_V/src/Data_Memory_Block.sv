@@ -6,9 +6,13 @@ module Data_Memory_Block (
     output reg [31:0] read_data // Data read from memory
 );
 
-    // Define 256 words (32-bit each) = 1024 bytes of memory
-    reg [31:0] data_memory [255:0]; 
+    // Define 1000 words (32-bit each) = 4000 bytes of memory
+    reg [31:0] data_memory [0:999];
 
+    initial begin
+    foreach (data_memory[i])
+        data_memory[i] = $urandom();   // 1000 iterations: i = 0 … 999
+    end
 
 
     // Read and write operations (combinational logic)
@@ -18,7 +22,7 @@ module Data_Memory_Block (
 
         // Handle read operation only if mem_read is asserted
         if (mem_read) begin
-            if (address[7:2] < 256) begin
+            if (address[7:2] < 1000) begin
                 read_data = data_memory[address[7:2]]; // Word-aligned access
             end else begin
                 read_data = 32'hDEADBEEF; // Return a known invalid value for out-of-bounds access
@@ -26,7 +30,7 @@ module Data_Memory_Block (
         end
 
         // Handle write operation only if mem_write is asserted
-        if (mem_write && address[7:2] < 256) begin
+        if (mem_write && address[7:2] < 1000) begin
             data_memory[address[7:2]] = write_data; // Word-aligned write
         end
     end
