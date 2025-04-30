@@ -21,13 +21,13 @@ module tb_RISC_V;
         .reg_writeaddr(reg_writeaddr)
     );
 
-    // Clock generation with stop condition
+    // Clock generation with stop condition using outputs
     initial begin
         clk = 0;
         forever begin
             #5 clk = ~clk; // 10 time units clock period
-            if (risc_v_core.Register_File_Block.registers[12] == 1) begin
-                disable clock_block;
+            if (reg_writedata == 1 && reg_writeaddr == 12) begin
+                $finish; // Stop simulation when condition is met
             end
         end
     end
