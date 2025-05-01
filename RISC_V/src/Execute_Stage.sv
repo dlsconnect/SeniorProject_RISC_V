@@ -86,7 +86,7 @@ always_comb begin
     pcadder_in2 = (pcadder_in2_sel_e) ? immediate_e_shifted : immediate_e;
     pcadder_out = $signed(pcadder_in1) + $signed(pcadder_in2);
     pcadder_out_rounded = pcadder_out;
-    pcadder_out_rounded[0] = 1'b0;
+    pcadder_out_rounded[1:0] = 2'b00;
     pcadder_out_merge = (pcadder_out_sel_e) ? pcadder_out_rounded : pcadder_out;
     pc_branch = (pcadder_out_merge_sel_e) ? 32'h0000_0000 : pcadder_out_merge;
     pc_plusimm = (pcadder_out_merge_sel_e) ? pcadder_out : 32'h0000_0000;

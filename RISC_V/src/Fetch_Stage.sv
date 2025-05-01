@@ -15,7 +15,7 @@ module Fetch_Stage (
     logic [31:0] pc_next; // Next Program Counter value
 
     // Program Counter Logic
-    always_ff @(posedge clk or posedge reset) begin
+    always_ff @(posedge clk) begin
         if (reset) begin
             pc_f <= 32'h00000000; // Reset PC to 0
         end else begin
@@ -31,7 +31,10 @@ module Fetch_Stage (
     assign pc_next = pc_f + 4;
 
     // Instruction Memory Block Instance
-    Instruction_Memory_Block imem (
+    Instruction_Memory_Block # (
+        .IMEM_DEPTH(256),          // Depth of instruction memory
+        .INIT_FILE("/home/dlsconnect/Documents/SFSU_2020_2025/SeniorProject_RISC_V/RISC_V/src/Instructions_Folder/imem.hex")     // Initialization file for instruction memory
+        ) imem (
         .PC_f(pc_f),
         .imem_read_en(imem_read_en),
         .Instruction_f(instr_f)
